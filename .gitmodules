@@ -1,0 +1,12 @@
+[submodule "passly_styleguide"]
+	path = passly_styleguide
+	url = git@github.com:Svaroh/passly_styleguide.git
+[submodule "passly_browser_extension"]
+	path = passly_browser_extension
+	url = git@github.com:Svaroh/passly_browser_extension.git
+[submodule "passly_android"]
+	path = passly_android
+	url = git@github.com:Svaroh/passly_android.git
+[submodule "passly_api"]
+	path = passly_api
+	url = git@github.com:Svaroh/passly_api.git
