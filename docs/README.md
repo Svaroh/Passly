@@ -9,6 +9,7 @@ This directory contains the central architectural specifications, security desig
 ```
 docs/
 ├── architecture/    # Core technical specifications, security models, and sync protocols
+├── deployment/      # Infrastructure deployment blueprints (OCI Free Tier, NixOS, Edge Proxy)
 ├── DONE/            # Documented records of completed milestones and verified features
 ├── TODO/            # Roadmap backlog, planned improvements, and pending initiatives
 ├── UA/              # Ukrainian localization of the architecture documentation

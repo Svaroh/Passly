@@ -83,9 +83,10 @@ introduced through Pull Requests.
     `src/locales`, `.storybook`.
 
 - `docs/`
-  - Central architectural specifications, cryptographic designs, and task tracking.
+  - Central architectural specifications, cryptographic designs, deployment guides, and task tracking.
   - `architecture/`: Normative technical docs (system overview, sync protocol `sync/1`,
     security & encryption, client offline replicas).
+  - `deployment/`: Production deployment blueprints (OCI Free Tier, Edge DMZ reverse proxy, NixOS operational guides).
   - `UA/`: Complete Ukrainian mirror of the architecture documentation.
   - `DONE/`: Archive and summaries of completed features and landed milestones.
   - `TODO/`: Roadmap backlog and pending requirements (R7 offline writes, R8 emergency export).
