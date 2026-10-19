@@ -320,108 +320,13 @@ On the private backend VM, map the upstream SMTP host in `/etc/hosts`:
 
 ---
 
-## 5. NixOS on OCI (Optional Alternative to Standard Linux)
+## 5. NixOS on OCI (Optional Alternative)
 
-While standard distributions like Ubuntu or Debian work well, **NixOS** provides distinct operational advantages for long-term server maintenance.
+While standard distributions like Ubuntu or Debian work well, **NixOS** provides distinct operational advantages for cloud deployments, including complete declarative configuration, atomic system generations, instant rollbacks, and zero configuration drift.
 
-### Why NixOS in Cloud Environments?
+For the full operational guide — including `nixos-infect` installation, 1 GB Micro VM memory protection (file-backed swap, single-job constraints, and `systemd-run` resource limits), and declarative Nginx configuration — refer to the dedicated specification:
 
-1. **Complete Declarative Configuration**:
-   The entire OS state — packages, kernel parameters, firewall rules, users, Nginx vhosts, PHP-FPM pools, and database tuning — is declared in `/etc/nixos/configuration.nix`.
-2. **Atomic Upgrades & Instant Rollback**:
-   Every change creates a new system generation. If an update introduces a regression or breaks Nginx, running `sudo nixos-rebuild switch --rollback` immediately restores the previous known-good state.
-3. **No Configuration Drift**:
-   NixOS eliminates ad-hoc `/etc/` changes and forgotten manual tweaks. The configuration in Git is the absolute source of truth.
-4. **Reproducible Deployments**:
-   Spinning up a replacement VM takes minutes by applying the same configuration file.
-
-### Installing NixOS on OCI
-
-1. Launch a standard `VM.Standard.E2.1.Micro` instance running Ubuntu.
-2. Convert it in-place using [`nixos-infect`](https://github.com/elitak/nixos-infect):
-   ```bash
-   curl https://raw.githubusercontent.com/elitak/nixos-infect/master/nixos-infect | NIXOS_RELEASE=25.11 bash -x
-   ```
-3. Reboot into the newly generated NixOS system.
-
----
-
-### Critical Operational Rule: NixOS Memory Management on 1 GB VMs
-
-> [!WARNING]
-> **Evaluation Memory Exhaustion**:
-> Running `nixos-rebuild switch` on a 1 GB Micro VM can consume over 1 GB of memory during the Nix evaluation phase. Without swap and resource constraints, `nixos-rebuild` will trigger an OOM event and terminate active services (including SSH and Nginx).
-
-To safely operate NixOS on an OCI Micro instance:
-
-#### 1. File-backed Swap in `configuration.nix`
-Do not rely solely on `zram` (compressed RAM). Declare a real swapfile:
-```nix
-swapDevices = [
-  {
-    device = "/var/swapfile";
-    size = 2048; # 2 GB
-  }
-];
-```
-*(Before the first rebuild, create the swapfile manually with `fallocate -l 2G /var/swapfile && chmod 600 /var/swapfile && mkswap /var/swapfile && swapon /var/swapfile`).*
-
-#### 2. Execute Rebuilds with Single-Job Caps
-Always constrain compilation and evaluation jobs:
-```bash
-sudo nixos-rebuild switch --max-jobs 1 --cores 1
-```
-
-#### 3. Protect Critical Services via `systemd-run`
-To ensure that an unexpected build spike never terminates Nginx or PHP-FPM, run the rebuild inside a resource-capped transient unit:
-```bash
-sudo systemd-run --unit=passly-rebuild --collect \
-  -p MemoryHigh=400M -p MemoryMax=700M -p MemorySwapMax=4G -p CPUQuota=70% \
-  nixos-rebuild switch --max-jobs 1 --cores 1
-```
-
----
-
-### Sample Declarative NixOS Module (`passly-edge.nix`)
-
-A sanitized example of an edge reverse-proxy configuration:
-
-```nix
-{ pkgs, config, ... }:
-
-{
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
-
-  security.acme = {
-    acceptTerms = true;
-    defaults.email = "admin@example.com";
-  };
-
-  services.nginx = {
-    enable = true;
-    recommendedGzipSettings = true;
-    recommendedOptimisation = true;
-    recommendedProxySettings = true;
-    recommendedTlsSettings = true;
-
-    virtualHosts."passly.example.com" = {
-      enableACME = true;
-      forceSSL = true;
-      locations."/" = {
-        proxyPass = "http://10.0.0.20"; # Points to private Passly backend
-        proxyWebsockets = true;
-      };
-    };
-
-    # Drop connections to unrecognized Host headers
-    virtualHosts."_" = {
-      default = true;
-      rejectSSL = true;
-      extraConfig = "return 444;";
-    };
-  };
-}
-```
+👉 **[NixOS on OCI: Architecture, Benefits, and Operations](nixos-oci.md)**
 
 ---
 
