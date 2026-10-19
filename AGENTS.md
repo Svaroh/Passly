@@ -26,19 +26,19 @@ guidance. Refer to the corresponding local guide when working on that component:
 
 - `passly_api/`
   - Backend API, authentication, and `sync/1` synchronization service.
-  - Local instructions: `passly_api/.codex/AGENTS.md`.
+  - Local instructions: `passly_api/AGENTS.md`.
 
 - `passly_browser_extension/`
   - Client browser extension for Chromium, Firefox, and Safari.
-  - Local instructions: `passly_browser_extension/.codex/AGENTS.md`.
+  - Local instructions: `passly_browser_extension/AGENTS.md`.
 
 - `passly_android/`
   - Native Android application with offline replica and background sync.
-  - Local instructions: `passly_android/.codex/AGENTS.md`.
+  - Local instructions: `passly_android/AGENTS.md`.
 
 - `passly_styleguide/`
   - Shared UI design tokens, React components, LESS styles, and Storybook.
-  - Local instructions: `passly_styleguide/.codex/AGENTS.md`.
+  - Local instructions: `passly_styleguide/AGENTS.md`.
 
 - `docs/`
   - System architecture specifications, deployment guides, and task tracking.
