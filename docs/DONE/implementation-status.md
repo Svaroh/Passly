@@ -1,7 +1,7 @@
 # Completed Implementation Milestones: Plan (`PLAN.md`) vs. Reality
 
 **Audit Date:** October 16, 2026  
-**Reference Document:** `/Volumes/SRC/passly/PLAN.md` (Dated 2026-08-07)  
+**Reference Document:** `PLAN.md` (Dated 2026-08-07)  
 **Status:** Landed & Verified Deliverables
 
 ---
