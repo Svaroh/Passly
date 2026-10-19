@@ -13,7 +13,7 @@
 | Компонент | Версія у PLAN.md | Фактична версія | Завершені результати |
 |-----------|------------------|-----------------|----------------------|
 | **`passly_android`** | 3.1.x | **6.0.8** (commit `daebc1379`) | **M0** та **M1 (Автономність)**: Локальне збереження секретів, неблокуючий unlock, відв'язка апаратного Keystore від біометрії, основа модуля `core/sync`. |
-| **`passly_api`** | 5.12.x | **6.1.0** (tag `v6.1.0`) | **M2 (Ядро дельти)**: Плагін `PassboltCe/Sync` (таблиця `sync_log`, `/sync/meta`, `/sync/changes`), адаптація `OfflineMode` під необмежений офлайн. |
+| **`passly_api`** | 5.12.x | **6.1.0** (коміти до `2c021d5`) | **M2 (Повний протокол `sync/1`)**: Плагін `PassboltCe/Sync` (`sync_log`, `/sync/meta`, `/sync/changes`, `/sync/bootstrap`, `/sync/manifest`, аудит-логи `sync`), адаптація `OfflineMode`. |
 | **`passly_browser_extension`** | 6.0.13 | **6.1.0** (tag `v6.1.0`) | **E-A, E-B, E-B1, E-C, E-V, E-D**: Контейнеризоване робоче середовище, локальне розблокування, читання зі сховища, безшовний офлайн-роутинг, offline-first passkey, біометрія. |
 | **`passly_styleguide`** | v5.12.1 (форк) | **6.1.0** (tag `v6.1.0`) | Повна адаптація під автономну роботу, офлайн-стани та біометричні діалоги. |
 
@@ -41,16 +41,18 @@
 
 ---
 
-### Етап M2: Серверний API — Ядро дельта-синхронізації (`passly_api`)
-- **Статус:** ✅ **Реалізовано та працює в продакшені.**
+### Етап M2: Серверний API — Протокол `sync/1` Повністю Реалізовано (`passly_api`)
+- **Статус:** ✅ **Повністю реалізовано (коміт `e033560f6d` та тести).**
   - Плагін розгорнуто в `plugins/PassboltCe/Sync`.
   - Міграція БД `config/Migrations/20260812200000_V600CreateSyncLog.php` (таблиця `sync_log` із полями `seq`, `entity_type`, `entity_id`, `op`, `created`).
   - Слухач подій `SyncLogModelListener` та сервіс запису `SyncLogRecorderService` для ресурсів, секретів і прав.
   - Ендпоїнт `GET /sync/meta.json` (`SyncMetaController`, `SyncMetaService`).
   - Ендпоїнт `GET /sync/changes.json` (`SyncChangesController`, `SyncChangesService`) з підтримкою курсору `since`, лімітів, стабілізації водяного знака (2 с лаг), перевірки терміну зберігання (90 днів, `410 Gone`) та динамічної фільтрації прав.
+  - Ендпоїнт `GET /sync/bootstrap.json` (`SyncBootstrapController`, `SyncBootstrapService`, `SyncBootstrapDto`): Порційна початкова синхронізація з `header.pagination` для нових клієнтів або відновлення після `410 Gone`.
+  - Ендпоїнт `GET /sync/manifest.json` (`SyncManifestController`, `SyncManifestService`): Легковагова звірка цілісності локального сховища.
+  - Журналювання аудиту доступу: Трейт `SyncSecretAccessLoggerTrait` реєструє подію `Resource.Secrets.sync` та SIEM-подію `password_sync` під час bootstrap та дельта-синхронізації.
   - Очищення застарілих записів: `SyncLogRetentionService` та команда `bin/cake sync_log_prune`.
   - Плагін `PassboltCe/OfflineMode` адаптовано для необмеженої роботи офлайн.
-  - *(Ендпоїнти `/sync/bootstrap` та `/sync/manifest` перенесені до [docs/UA/TODO/roadmap-backlog.md](../TODO/roadmap-backlog.md)).*
 
 ---
 
@@ -88,4 +90,3 @@
 - **Етап M4**: Екран налаштувань параметрів синхронізації.
 - **Етап M5 та E-E**: Черга офлайн-запису (`pending_ops`) та вирішення конфліктів (`sync_conflicts`).
 - **Етап M6**: Автономний аварійний експорт сховища (KDBX 4 / PGP-JSON).
-- **Серверні ендпоїнти**: `/sync/bootstrap.json` та `/sync/manifest.json`.
