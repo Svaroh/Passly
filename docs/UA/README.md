@@ -26,7 +26,7 @@ Passly проєктується не за принципом «веб-засто
 4. [Автономне сховище Android](architecture/offline-replica-android.md) — реалізація в `passly_android`: база даних Room + SQLCipher (таблиця `Secret`), неблокуючий вхід (`BackgroundSignInExecutor`), local-first читання, модуль `core/sync`.
 5. [Автономне робоче середовище браузерного розширення](architecture/offline-replica-web-extension.md) — реалізація в `passly_browser_extension` та `passly_styleguide`: локальні сторінки `workspace.html` / `signin.html`, безшовний офлайн-роутинг, offline-first passkey, біометричний анлок.
 6. [Офлайн-зміни, черга операцій та конфлікти](architecture/offline-writes-and-conflicts.md) — збереження локальних змін у черзі `pending_ops`, алгоритм вирішення конфліктів за версіями, збереження конфліктних копій у `sync_conflicts`, аварійний експорт (R8).
-7. [Порівняльний аналіз: План vs Реалізація](architecture/implementation-status.md) — детальний звіт про виконання кожного пункту `PLAN.md` станом на жовтень 2026 року у всіх компонентах системи.
+7. [Порівняльний аналіз: План vs Реалізація](DONE/implementation-status.md) — детальний звіт про виконання кожного пункту `PLAN.md` станом на жовтень 2026 року у всіх компонентах системи.
 
 ---
 

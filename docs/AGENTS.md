@@ -4,8 +4,9 @@ This directory (`docs/`) contains the architectural blueprints, technical specif
 
 ## Directory Layout
 
-- `architecture/`: Normative technical specifications (system overview, cryptographic models, `sync/1` protocol, platform-specific replica engines, and audit records).
-- `DONE/`: Summaries of implemented features, closed milestones, and verification reports.
+- `architecture/`: Normative technical specifications (system overview, cryptographic models, `sync/1` protocol, and platform-specific replica engines).
+- `deployment/`: Production deployment guides, infrastructure blueprints (OCI Free Tier, edge reverse proxies), and NixOS operational guidelines.
+- `DONE/`: Summaries of implemented features, closed milestones, audit records, and verification reports.
 - `TODO/`: Roadmap backlog, planned enhancements, and pending requirements (such as offline writes and emergency export).
 - `UA/`: Complete Ukrainian localization of the architecture specifications.
 

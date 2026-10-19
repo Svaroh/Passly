@@ -7,6 +7,7 @@ This directory (`docs/TODO/`) tracks pending architectural requirements, upcomin
 - Outlines planned features, technical debt reduction, and architectural improvements.
 - Tracks pending system requirements (such as R7 Offline Writes and R8 Emergency Backup Export).
 - Organizes implementation specs and task checklists prior to active development.
+- Active backlog document: [roadmap-backlog.md](roadmap-backlog.md).
 
 ## Guidelines for Agents
 
