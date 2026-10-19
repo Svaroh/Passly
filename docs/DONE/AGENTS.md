@@ -7,6 +7,7 @@ This directory (`docs/DONE/`) tracks delivered milestones, implemented architect
 - Preserves records and verification notes for completed tasks.
 - Documents shipped capabilities across `passly_api`, `passly_browser_extension`, `passly_android`, and `passly_styleguide`.
 - Serves as the historical source of truth for initiatives transitioned out of `docs/TODO/`.
+- Verified milestones audit: [implementation-status.md](implementation-status.md).
 
 ## Guidelines for Agents
 

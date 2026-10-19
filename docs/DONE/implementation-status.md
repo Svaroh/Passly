@@ -1,30 +1,30 @@
-# Implementation Status: Plan (`PLAN.md`) vs. Reality
+# Completed Implementation Milestones: Plan (`PLAN.md`) vs. Reality
 
 **Audit Date:** October 16, 2026  
-**Reference Document:** `/Volumes/SRC/passly/PLAN.md` (Dated 2026-08-07)
+**Reference Document:** `/Volumes/SRC/passly/PLAN.md` (Dated 2026-08-07)  
+**Status:** Landed & Verified Deliverables
 
 ---
 
 ## 1. Executive Summary
 
-The initial roadmap document `PLAN.md` originally stated:  
-> *“Status: design plan (implementation not yet started)”*
+An audit of the codebase across all four subprojects confirms that the **foundational offline architecture has been implemented in production**, with the browser extension, styleguide, and WebAuthn / Passkeys progressing beyond initial targets to release **v6.1.0**.
 
-An audit of the codebase across all four subprojects reveals that **the foundational offline architecture has been largely implemented in production**, with several domains (notably the browser extension, styleguide, and WebAuthn / Passkeys) progressing beyond initial targets to release **v6.1.0**.
-
-| Component | Target in PLAN.md | Actual Status in Codebase | Implementation Progress |
-|-----------|-------------------|---------------------------|-------------------------|
-| **`passly_android`** | 3.1.x | **6.0.8** (commit `daebc1379`) | Completed **M0** and **M1 (Autonomy)**; local secret persistence, non-blocking unlock, hardware Keystore decoupled from biometrics, `core/sync` foundation. |
-| **`passly_api`** | 5.12.x | **6.1.0** (tag `v6.1.0`) | Landed `PassboltCe/Sync` plugin (`sync_log` table, `/sync/meta`, `/sync/changes`), adapted `OfflineMode` plugin for perpetual offline defaults. |
-| **`passly_browser_extension`** | 6.0.13 | **6.1.0** (tag `v6.1.0`) | Landed **E-A, E-B, E-B1, E-C, E-V** + exceeded roadmap: implemented **Seamless Offline Routing (PR #45)**, offline-first passkeys, biometric unlock. |
+| Component | Target in PLAN.md | Actual Status in Codebase | Completed Deliverables |
+|-----------|-------------------|---------------------------|------------------------|
+| **`passly_android`** | 3.1.x | **6.0.8** (commit `daebc1379`) | **M0** and **M1 (Autonomy)**: Local secret persistence, non-blocking unlock, hardware Keystore decoupled from biometrics, `core/sync` foundation. |
+| **`passly_api`** | 5.12.x | **6.1.0** (tag `v6.1.0`) | **M2 (Core Delta)**: `PassboltCe/Sync` plugin (`sync_log` table, `/sync/meta`, `/sync/changes`), adapted `OfflineMode` plugin for perpetual offline defaults. |
+| **`passly_browser_extension`** | 6.0.13 | **6.1.0** (tag `v6.1.0`) | **E-A, E-B, E-B1, E-C, E-V, E-D**: Containerized workspace, offline session unlock, local-first reads, Seamless Offline Routing, offline-first passkeys, biometric unlock. |
 | **`passly_styleguide`** | v5.12.1 (fork) | **6.1.0** (tag `v6.1.0`) | Fully adapted for autonomous execution, offline states, and biometric auth dialogs. |
+
+> [!NOTE]
+> All pending milestones and unfulfilled requirements have been transitioned to the roadmap backlog in **[docs/TODO/roadmap-backlog.md](../TODO/roadmap-backlog.md)**.
 
 ---
 
-## 2. Milestone-by-Milestone Audit (`PLAN.md`)
+## 2. Completed Milestones
 
 ### Milestone M0: Specification & Sync Foundation
-- **Plan:** `docs/sync-protocol.md`, Kotlin `core/sync` module skeleton, WorkManager dependency.
 - **Reality:** ✅ **Fully Landed.**
   - Specification codified in `passly_android/docs/sync-protocol.md` and `docs/architecture/sync-protocol.md`.
   - Module `core/sync` established in `passly_android/core/sync`: includes `SyncStatus`, `SyncResult`, `SyncTrigger`, `SyncBackoff` (with unit test suite), `SyncStatusRepository`, and `NetworkStateProvider`.
@@ -32,65 +32,39 @@ An audit of the codebase across all four subprojects reveals that **the foundati
 ---
 
 ### Milestone M1: Android Autonomy (Requirements R0, R2, R5, R6)
-- **Plan:** `Secret` table creation, Room migration, local-first secret decryption, non-blocking offline unlock, Keystore master key unbound from biometrics.
 - **Reality:** ✅ **Fully Landed (commit `1e1aea3c4` and subsequent refactors).**
-  - **Database:** Created `secrets` table (`SecretEntity`), `SecretsDao`, and Room migration `Migration28to29.kt` (originally estimated as 23➔24; current schema version is 29).
-  - **Local-first Reading:** `SecretInteractor` queries `GetLocalSecretUseCase` first. If an entry is cached locally, no network connection is attempted.
-  - **Non-blocking Unlock (R6):** Implemented `BackgroundSignInExecutor` and `HasLocalReplicaUseCase`. With a local replica present, the vault opens immediately upon local passphrase verification; server GPGAuth session establishment runs asynchronously in a detached coroutine.
+  - **Database:** Created `secrets` table (`SecretEntity`), `SecretsDao`, and Room migration `Migration28to29.kt`.
+  - **Local-first Reading:** `SecretInteractor` queries `GetLocalSecretUseCase` first; if an entry is cached locally, no network connection is attempted.
+  - **Non-blocking Unlock (R6):** Implemented `BackgroundSignInExecutor` and `HasLocalReplicaUseCase`. Vault opens immediately upon local passphrase verification; server GPGAuth session establishment runs asynchronously.
   - **Network Timeouts:** Connection timeout trimmed to 10s; overall call timeout capped at 60s; server PGP and RSA keys fetched concurrently.
   - **Critical Path Audit:** `AuthenticatedOperationRunner` no longer blocks offline reads when session tokens are absent (`requiresSession = false`); `KeyInspectorViewModel` reads local `users` data; the creation button on `HomeScreen` is preserved during background sync failures.
   - **Keystore Security (R5):** Storage master key preserved without `setUserAuthenticationRequired` or `setInvalidatedByBiometricEnrollment`.
 
 ---
 
-### Milestone M2: Backend API (`passly_api`)
-- **Plan:** `PassboltCe/Sync` plugin, `sync_log` table, `afterSave`/`afterDelete` hooks, `/sync/{meta, changes, bootstrap, manifest}` endpoints.
-- **Reality:** 🟡 **Partially Landed (Core Delta Operational).**
-  - ✅ Plugin established in `plugins/PassboltCe/Sync`.
-  - ✅ Database migration `config/Migrations/20260812200000_V600CreateSyncLog.php` (`sync_log` table with `seq`, `entity_type`, `entity_id`, `op`, `created`).
-  - ✅ Event listener `SyncLogModelListener` and recorder `SyncLogRecorderService` capturing mutations to `resources`, `secrets`, and `permissions`.
-  - ✅ Endpoint `GET /sync/meta.json` (`SyncMetaController`, `SyncMetaService`).
-  - ✅ Endpoint `GET /sync/changes.json` (`SyncChangesController`, `SyncChangesService`) supporting `since` cursor, limit, watermark settling (2s lag), 90-day retention checks (`410 Gone`), and dynamic ACL filtering (revoked permissions surface as `deletions`).
-  - ✅ Maintenance pruning: `SyncLogRetentionService` and CLI command `SyncLogPruneCommand` (`bin/cake sync_log_prune`).
-  - ✅ Plugin `PassboltCe/OfflineMode` adapted with perpetual offline defaults.
-  - ⏳ **Pending Endpoints:**
-    - `GET /sync/bootstrap.json` (`SyncBootstrapController`) for paginated initial sync snapshots.
-    - `GET /sync/manifest.json` (`SyncManifestController`) for lightweight reconciliation.
-    - Special `sync` audit log classification for secret queries during delta transfers.
+### Milestone M2: Backend API — Core Delta Engine (`passly_api`)
+- **Reality:** ✅ **Landed & Operational.**
+  - Plugin established in `plugins/PassboltCe/Sync`.
+  - Database migration `config/Migrations/20260812200000_V600CreateSyncLog.php` (`sync_log` table with `seq`, `entity_type`, `entity_id`, `op`, `created`).
+  - Event listener `SyncLogModelListener` and recorder `SyncLogRecorderService` capturing mutations to `resources`, `secrets`, and `permissions`.
+  - Endpoint `GET /sync/meta.json` (`SyncMetaController`, `SyncMetaService`).
+  - Endpoint `GET /sync/changes.json` (`SyncChangesController`, `SyncChangesService`) supporting `since` cursor, limit, watermark settling (2s lag), 90-day retention checks (`410 Gone`), and dynamic ACL filtering.
+  - Maintenance pruning: `SyncLogRetentionService` and CLI command `SyncLogPruneCommand` (`bin/cake sync_log_prune`).
+  - Plugin `PassboltCe/OfflineMode` adapted with perpetual offline defaults.
+  - *(Remaining endpoints `/sync/bootstrap` and `/sync/manifest` transitioned to [docs/TODO/roadmap-backlog.md](../TODO/roadmap-backlog.md)).*
 
 ---
 
-### Milestone M3: Android Delta Client (Requirement R3)
-- **Plan:** Client-side delta synchronization replacing full refresh (`core/fulldatarefresh`).
-- **Reality:** ⏳ **Planned / In Progress.**
-  - Module `core/sync` provides status repositories and backoff primitives, but `DeltaSyncStrategy`, `ChangesApplier`, `BootstrapStrategy`, and `ManifestReconciler` remain to be connected.
-  - Android currently continues to rely on `core/fulldatarefresh` with silent background tracking.
+### Milestone M4: Status Messaging & Neutral Phrasing (Requirement R4)
+- **Reality:** ✅ **Landed.**
+  - Offline status messaging and neutral phrasing have been integrated across Android screens.
+  - *(Dedicated sync preferences screen transitioned to [docs/TODO/roadmap-backlog.md](../TODO/roadmap-backlog.md)).*
 
 ---
 
-### Milestone M4: Sync Management UI (Requirement R4)
-- **Plan:** Force-sync button on Home, dedicated "Sync" settings screen with interval selectors and neutral offline indicators.
-- **Reality:** 🟡 **Partially Landed.**
-  - Offline status messaging and neutral phrasing have been integrated across screens.
-  - The dedicated sync preferences screen is slated for delivery alongside the delta client.
+## 3. Browser Extension Autonomy (Phase 2 / Section 11a)
 
----
-
-### Milestone M5: Offline Writes & Conflict Handling (Requirement R7)
-- **Plan:** `pending_ops` queue table, optimistic UI, conflict handling via `sync_conflicts`.
-- **Reality:** ⏳ **Planned.** Offline mutations currently pause until network availability is restored.
-
----
-
-### Milestone M6: Emergency Export & Polish (Requirement R8)
-- **Plan:** Offline standalone export to KDBX 4 / PGP-JSON from the local store.
-- **Reality:** ⏳ **Planned.**
-
----
-
-## 3. Browser Extension Audit (Phase 2 / Section 11a)
-
-Section 11a of `PLAN.md` charted milestones for extension autonomy:
+All planned read-only and autonomous workspace objectives are fully implemented in production:
 
 | Step | Planned Objective | Actual Status in v6.1.0 |
 |------|-------------------|-------------------------|
@@ -100,9 +74,19 @@ Section 11a of `PLAN.md` charted milestones for extension autonomy:
 | **E-C** | Local-first read path for resources, profile, groups | ✅ **Landed.** Vault items read from local storage before checking API. |
 | **E-V** | Automated Playwright offline test suite | ✅ **Landed.** `test/offline/verifyOfflineWorkspace.js` verified passing. |
 | **E-D** | Offline UI states in styleguide | ✅ **Landed.** Filters (including Trash), dialogs, and banners adapted for offline mode. |
-| **E-E** | Offline write queue | ⏳ **Planned.** |
 
 ### Features Delivered Beyond Initial Plan:
 1. **Seamless Offline Routing (PR #45):** If the server host fails to resolve or drops connection, the extension seamlessly switches to the bundled `workspace.html` without presenting browser network failure screens.
 2. **Offline-first Passkeys:** Direct WebAuthn credential filtering from local vault storage (`passkeyVaultResourceService`), stripping background API delays from passkey ceremonies.
 3. **Biometric Vault Unlock:** WebAuthn User Verification integration (Touch ID / Windows Hello) for unlocking the extension workspace without entering a passphrase.
+
+---
+
+## 4. Pending Initiatives
+
+The following unfulfilled roadmap items have been transferred to **[docs/TODO/roadmap-backlog.md](../TODO/roadmap-backlog.md)**:
+- **Milestone M3**: Incremental Delta Sync client in `passly_android`.
+- **Milestone M4**: User-configurable sync preferences screen.
+- **Milestone M5 & Step E-E**: Offline write queue (`pending_ops`) and conflict resolution (`sync_conflicts`).
+- **Milestone M6**: Standalone emergency vault export (KDBX 4 / PGP-JSON).
+- **Backend Sync API**: `/sync/bootstrap.json` and `/sync/manifest.json`.
