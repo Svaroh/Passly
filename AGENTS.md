@@ -55,6 +55,23 @@ guidance. Refer to the corresponding local guide when working on that component:
   names, and identifiers. Avoid `Passly` / `passbolt` prefixes unless the name
   is user-visible branding, required compatibility, or an existing protocol.
 
+## Mandatory Version Bumping & Release Hygiene
+
+- **Every change requires a version bump:** When introducing functional changes,
+  bug fixes, or improvements in any Passly component (such as `passly_browser_extension`,
+  `passly_api`, `passly_android`, or `passly_styleguide`), ALWAYS bump the version
+  (patch increment by default) before completing the task. Never leave changes
+  or bug fixes under an already existing or previously deployed version.
+- **Synchronous updates across metadata:** Update all associated version files,
+  package manifests (`package.json`, `package-lock.json`), platform manifests
+  (e.g. Chrome/Firefox/Safari `manifest.json`), `CHANGELOG.md`, and `RELEASE_NOTES.md`
+  in lockstep.
+- **Rebuild before concluding:** Rebuild distributable or unpacked artifacts with
+  the bumped version immediately so users and testers can reload and verify the
+  updated build without stale cached states.
+- **Report the version:** Explicitly state the newly bumped version in the final
+  response to the user.
+
 ## Editing Rules
 
 - Preserve unrelated user changes: check `git status --short` inside the
