@@ -72,6 +72,20 @@ guidance. Refer to the corresponding local guide when working on that component:
 - **Report the version:** Explicitly state the newly bumped version in the final
   response to the user.
 
+## Task Tracking & Documentation Lifecycle (TODO vs. DONE)
+
+- **Never mark items as `[COMPLETED]` inline within `docs/TODO/`:** When a feature,
+  milestone, or roadmap task is completed and verified, do NOT retain it in
+  `docs/TODO/` with a `[COMPLETED]` or `[DONE]` tag.
+- **Migrate to `docs/DONE/`:** Completely remove finished tasks from
+  `docs/TODO/roadmap-backlog.md` (and other backlog files in `docs/TODO/`) and
+  transfer their implementation reports, architectural notes, and verification audits
+  into `docs/DONE/` (such as dedicated milestone files and updating
+  `docs/DONE/implementation-status.md`).
+- **Comprehensive Documentation Updates:** Fully update all affected documentation,
+  status tables, component versions, and cross-references across `docs/` in lockstep
+  whenever an initiative lands.
+
 ## Editing Rules
 
 - Preserve unrelated user changes: check `git status --short` inside the

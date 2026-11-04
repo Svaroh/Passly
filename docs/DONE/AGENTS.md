@@ -11,7 +11,7 @@ This directory (`docs/DONE/`) tracks delivered milestones, implemented architect
 
 ## Guidelines for Agents
 
-- **Moving Items from TODO**: When a task meets its Definition of Done and passes verification, move its documentation here.
+- **Moving Items from TODO (No `[COMPLETED]` tags in TODO)**: Never leave completed items marked as `[COMPLETED]` in `docs/TODO/`. When a task meets its Definition of Done and passes verification, completely remove it from `docs/TODO/` and move its documentation and verification reports here, updating `docs/DONE/implementation-status.md` and related references.
 - **Traceability**: Reference affected subprojects, key commits, or PRs where applicable.
 - **Conventions**: Keep records concise, factual, and free of fictitious `PB-` ticket prefixes.
 - **Security**: Never log real credentials, cryptographic keys, or private tokens in completion reports.

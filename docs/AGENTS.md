@@ -13,6 +13,7 @@ This directory (`docs/`) contains the architectural blueprints, technical specif
 ## Operating Principles for Agents
 
 - **Sync with Code**: Ensure architectural documents accurately reflect current implementations in `passly_api`, `passly_browser_extension`, `passly_android`, and `passly_styleguide`.
+- **Task Lifecycle & Backlog Discipline (TODO vs. DONE)**: Never mark items as `[COMPLETED]` or `[DONE]` inline inside `docs/TODO/`. Fully remove finished items from `docs/TODO/` and transfer their completion reports, verification records, and architecture summaries into `docs/DONE/`. Fully update all overview tables and cross-references across `docs/` in lockstep.
 - **Localization Parity**: When updating foundational concepts in `architecture/`, maintain parity with `UA/architecture/`.
 - **Naming & Identifiers**: Do not invent `PB-` or Passbolt ticket prefixes. Use plain descriptions or verified Passly issue IDs.
 - **Security & Hygiene**: Never insert private keys, tokens, session data, or production credentials into documentation.
