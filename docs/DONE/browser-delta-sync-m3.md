@@ -1,6 +1,6 @@
 # Milestone M3: Browser Extension Client Incremental Delta Sync (`sync/1`)
 
-**Release Version:** `6.1.15`  
+**Release Version:** `6.1.16` (initial release `6.1.15`)  
 **Target Subproject:** `passly_browser_extension`  
 **Reference Specification:** [`docs/architecture/sync-protocol.md`](../architecture/sync-protocol.md)  
 **Pull Request:** [#54](https://github.com/Svaroh/passly_browser_extension/pull/54)  
@@ -130,8 +130,20 @@ The implementation is verified by automated test suites covering all sync layers
 | **`resourceEvents.test.js`** | 2 | Integration of sync port message dispatchers in background event bus. |
 | **`findAndUpdateResourcesLocalStorageService.test.js`** | 34 | Strict data absence refresh policy and fallback execution. |
 
-### Full Extension Verification
-- **Sync-specific suites:** 10 suites, 72 tests passed (100%).
-- **Full extension test suite:** 697 test suites, 5,157 unit tests passed (`npm run test:unit`) with 0 failures and 0 errors.
+### Full Extension Verification & E2E Testing Suite
+- **Sync-specific unit suites:** 10 suites, 72 tests passed (100%).
+- **Full extension unit test suite:** 697 test suites, 5,157 unit tests passed (`npm run test:unit`) with 0 failures and 0 errors.
 - **Code hygiene & linting:** ESLint passed with 0 errors and 0 warnings (`npm run lint:eslint`).
-- **Artifact Build:** Unpacked Chromium MV3 bundle rebuilt successfully with version `6.1.15` in `build/chromium-mv3-unpacked/manifest.json`.
+- **Dedicated Chromium E2E Suite (`e2e/delta-sync.e2e.js`, `npm run test:e2e:sync`):**
+  - Live DEV backend protocol contracts (`/sync/meta.json`, `/sync/changes.json`, `/sync/manifest.json`, `/sync/bootstrap.json`): **PASSED**
+  - Headless Chromium CDP runtime attachment to active extension context: **PASSED**
+  - Strict data absence refresh policy (cold-start bootstrap vs warm delta sync): **PASSED**
+  - `ChangesApplier` atomic batch mutations, in-place updates, and cascading pruning: **PASSED**
+  - Transparent `410 Gone` cursor expiration recovery to pinned bootstrap: **PASSED**
+  - `ManifestReconciler` access revocation pruning: **PASSED**
+  - Network disconnection offline mode resilience (`Network.emulateNetworkConditions`): **PASSED**
+- **Full Suite E2E (`npm run test:e2e:all`):**
+  - `e2e/offline-vault.e2e.js`: **ALL E2E & OFFLINE RESILIENCE CHECKS PASSED 100%**
+  - `e2e/style-verification.e2e.js`: **DEDICATED STYLE E2E TEST COMPLETED SUCCESSFULLY**
+  - `e2e/delta-sync.e2e.js`: **ALL INCREMENTAL DELTA SYNC (sync/1) E2E CHECKS PASSED 100%**
+- **Artifact Build:** Unpacked Chromium MV3 bundle rebuilt successfully with version `6.1.16` in `build/chromium-mv3-unpacked/manifest.json`.

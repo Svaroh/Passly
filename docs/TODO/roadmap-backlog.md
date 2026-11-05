@@ -6,7 +6,7 @@ This document tracks unimplemented features, architectural milestones, and pendi
 > Completed milestones have been migrated to **[docs/DONE/](../DONE/)**:
 > - **Milestone M2 (Protocol `sync/1` API)** is documented in **[docs/DONE/implementation-status.md](../DONE/implementation-status.md)**.
 > - **Milestone M3 (Android Incremental Delta Sync v6.0.12)** is documented in **[docs/DONE/android-delta-sync-m3.md](../DONE/android-delta-sync-m3.md)** and **[docs/DONE/implementation-status.md](../DONE/implementation-status.md)**.
-> - **Milestone M3 (Browser Extension Incremental Delta Sync v6.1.15)** is documented in **[docs/DONE/browser-delta-sync-m3.md](../DONE/browser-delta-sync-m3.md)** and **[docs/DONE/implementation-status.md](../DONE/implementation-status.md)**.
+> - **Milestone M3 (Browser Extension Incremental Delta Sync v6.1.16)** is documented in **[docs/DONE/browser-delta-sync-m3.md](../DONE/browser-delta-sync-m3.md)** and **[docs/DONE/implementation-status.md](../DONE/implementation-status.md)**.
 
 ---
 

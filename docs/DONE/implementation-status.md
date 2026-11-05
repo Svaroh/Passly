@@ -8,13 +8,13 @@
 
 ## 1. Executive Summary
 
-An audit of the codebase across all subprojects confirms that the **foundational offline architecture has been implemented in production**, with the backend protocol `sync/1` landed in API **v6.1.0**, the web extension reaching release **v6.1.15** with client-side incremental delta sync and data absence refresh policy, the styleguide at **v6.1.0**, and the Android client reaching release **v6.0.12** with full incremental delta sync and Room schema 31.
+An audit of the codebase across all subprojects confirms that the **foundational offline architecture has been implemented in production**, with the backend protocol `sync/1` landed in API **v6.1.0**, the web extension reaching release **v6.1.16** with client-side incremental delta sync, strict data absence refresh policy, and complete E2E testing suite, the styleguide at **v6.1.0**, and the Android client reaching release **v6.0.12** with full incremental delta sync and Room schema 31.
 
 | Component | Target in PLAN.md | Actual Status in Codebase | Completed Deliverables |
 |-----------|-------------------|---------------------------|------------------------|
 | **`passly_android`** | 3.1.x | **6.0.12** (versionCode `69`) | **M0, M1 (Autonomy), M3 (Incremental Delta Sync)**: Local secret persistence, non-blocking unlock, hardware Keystore decoupled from biometrics, `core/sync` engine (`SyncEngine`, `DeltaSyncStrategy`, `ChangesApplier`, `BootstrapStrategy`, `ManifestReconciler`), Room schema 31 (`SyncState`), WorkManager scheduler (`SyncWorker`, `SyncScheduler`), fast delta refresh integrated into `FullDataRefreshExecutor` (full sync restricted strictly to empty local replica). |
 | **`passly_api`** | 5.12.x | **6.1.0** (commits up to `2c021d5`) | **M2 (Full Protocol `sync/1`)**: `PassboltCe/Sync` plugin (`sync_log`, `/sync/meta`, `/sync/changes`, `/sync/bootstrap`, `/sync/manifest`, sync audit logging), adapted `OfflineMode` plugin. |
-| **`passly_browser_extension`** | 6.0.13 | **6.1.15** (PR [#54](https://github.com/Svaroh/passly_browser_extension/pull/54)) | **E-A, E-B, E-B1, E-C, E-V, E-D, M3 (Incremental Delta Sync)**: Containerized workspace, offline session unlock, local-first reads, Seamless Offline Routing, offline-first passkeys, biometric unlock, and full client-side delta sync engine (`SyncEngine`, `DeltaSyncStrategy`, `ChangesApplier`, `BootstrapStrategy`, `ManifestReconciler`, `SyncStateLocalStorage`) enforcing strict data absence refresh policy. |
+| **`passly_browser_extension`** | 6.0.13 | **6.1.16** (PR [#54](https://github.com/Svaroh/passly_browser_extension/pull/54)) | **E-A, E-B, E-B1, E-C, E-V, E-D, M3 (Incremental Delta Sync & E2E Suite)**: Containerized workspace, offline session unlock, local-first reads, Seamless Offline Routing, offline-first passkeys, biometric unlock, and full client-side delta sync engine (`SyncEngine`, `DeltaSyncStrategy`, `ChangesApplier`, `BootstrapStrategy`, `ManifestReconciler`, `SyncStateLocalStorage`) enforcing strict data absence refresh policy, verified by dedicated Chromium E2E suite (`e2e/delta-sync.e2e.js`). |
 | **`passly_styleguide`** | v5.12.1 (fork) | **6.1.0** (tag `v6.1.0`) | Fully adapted for autonomous execution, offline states, and biometric auth dialogs. |
 
 > [!NOTE]
@@ -102,12 +102,13 @@ All planned read-only and autonomous workspace objectives are fully implemented 
 1. **Seamless Offline Routing (PR #45):** If the server host fails to resolve or drops connection, the extension seamlessly switches to the bundled `workspace.html` without presenting browser network failure screens.
 2. **Offline-first Passkeys:** Direct WebAuthn credential filtering from local vault storage (`passkeyVaultResourceService`), stripping background API delays from passkey ceremonies.
 3. **Biometric Vault Unlock:** WebAuthn User Verification integration (Touch ID / Windows Hello) for unlocking the extension workspace without entering a passphrase.
-4. **Client Incremental Delta Sync & Data Absence Refresh Policy (v6.1.15, PR [#54](https://github.com/Svaroh/passly_browser_extension/pull/54)):**
+4. **Client Incremental Delta Sync & Data Absence Refresh Policy (v6.1.16, PR [#54](https://github.com/Svaroh/passly_browser_extension/pull/54)):**
    - **Detailed Audit & Verification:** See dedicated report in **[docs/DONE/browser-delta-sync-m3.md](browser-delta-sync-m3.md)**.
    - Implemented `sync/1` wire protocol engine (`SyncApiService`, `SyncStateLocalStorage`, `ChangesApplier`, `DeltaSyncStrategy`, `BootstrapStrategy`, `ManifestReconciler`, `SyncEngine`).
    - Enforced strict data absence synchronization policy in `FindAndUpdateResourcesLocalStorage`: full synchronization is strictly executed only when local replica data is completely absent; existing data triggers non-blocking incremental delta sync.
    - Background messaging ports (`passbolt.sync.sync-now`, `passbolt.sync.get-status`) via `SyncNowController`.
-   - Verified by 72 sync unit tests and 5,157 full extension unit tests. Packed/unpacked artifacts rebuilt.
+   - Dedicated Chromium CDP E2E test suite (`e2e/delta-sync.e2e.js`, `npm run test:e2e:all`) verifying protocol contracts, data absence policy, atomic dispatch, 410 Gone recovery, manifest reconciliation, and offline resilience.
+   - Verified by 72 sync unit tests, 5,157 full extension unit tests, and 100% passing E2E suites. Packed/unpacked artifacts rebuilt.
 
 ---
 
