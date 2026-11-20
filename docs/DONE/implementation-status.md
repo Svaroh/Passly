@@ -1,6 +1,6 @@
 # Completed Implementation Milestones: Plan (`PLAN.md`) vs. Reality
 
-**Audit Date:** November 4, 2026  
+**Audit Date:** November 20, 2026  
 **Reference Document:** `PLAN.md` (Dated 2026-08-07)  
 **Status:** Landed & Verified Deliverables
 
@@ -8,14 +8,14 @@
 
 ## 1. Executive Summary
 
-An audit of the codebase across all subprojects confirms that the **foundational offline architecture has been implemented in production**, with the backend protocol `sync/1` landed in API **v6.1.0**, the web extension reaching release **v6.1.16** with client-side incremental delta sync, strict data absence refresh policy, and complete E2E testing suite, the styleguide at **v6.1.0**, and the Android client reaching release **v6.0.12** with full incremental delta sync and Room schema 31.
+An audit of the codebase across all subprojects confirms that the **foundational offline architecture has been implemented in production**, with the backend protocol `sync/1` landed in API **v6.1.3**, the web extension reaching release **v6.1.21** with client-side incremental delta sync, strict data absence refresh policy, biometric enrollment inside iframe, first-load console zero-error hardening, and complete multiplatform E2E test suites, the styleguide at **v6.1.6**, and the Android client reaching release **v6.0.12** with full incremental delta sync and Room schema 31.
 
 | Component | Target in PLAN.md | Actual Status in Codebase | Completed Deliverables |
 |-----------|-------------------|---------------------------|------------------------|
 | **`passly_android`** | 3.1.x | **6.0.12** (versionCode `69`) | **M0, M1 (Autonomy), M3 (Incremental Delta Sync)**: Local secret persistence, non-blocking unlock, hardware Keystore decoupled from biometrics, `core/sync` engine (`SyncEngine`, `DeltaSyncStrategy`, `ChangesApplier`, `BootstrapStrategy`, `ManifestReconciler`), Room schema 31 (`SyncState`), WorkManager scheduler (`SyncWorker`, `SyncScheduler`), fast delta refresh integrated into `FullDataRefreshExecutor` (full sync restricted strictly to empty local replica). |
-| **`passly_api`** | 5.12.x | **6.1.0** (commits up to `2c021d5`) | **M2 (Full Protocol `sync/1`)**: `PassboltCe/Sync` plugin (`sync_log`, `/sync/meta`, `/sync/changes`, `/sync/bootstrap`, `/sync/manifest`, sync audit logging), adapted `OfflineMode` plugin. |
-| **`passly_browser_extension`** | 6.0.13 | **6.1.16** (PR [#54](https://github.com/Svaroh/passly_browser_extension/pull/54)) | **E-A, E-B, E-B1, E-C, E-V, E-D, M3 (Incremental Delta Sync & E2E Suite)**: Containerized workspace, offline session unlock, local-first reads, Seamless Offline Routing, offline-first passkeys, biometric unlock, and full client-side delta sync engine (`SyncEngine`, `DeltaSyncStrategy`, `ChangesApplier`, `BootstrapStrategy`, `ManifestReconciler`, `SyncStateLocalStorage`) enforcing strict data absence refresh policy, verified by dedicated Chromium E2E suite (`e2e/delta-sync.e2e.js`). |
-| **`passly_styleguide`** | v5.12.1 (fork) | **6.1.0** (tag `v6.1.0`) | Fully adapted for autonomous execution, offline states, and biometric auth dialogs. |
+| **`passly_api`** | 5.12.x | **6.1.3** (branch `main`) | **M2 (Full Protocol `sync/1`)**: `PassboltCe/Sync` plugin (`sync_log`, `/sync/meta`, `/sync/changes`, `/sync/bootstrap`, `/sync/manifest`, sync audit logging), adapted `OfflineMode` plugin. |
+| **`passly_browser_extension`** | 6.0.13 | **6.1.21** (PR [#54](https://github.com/Svaroh/passly_browser_extension/pull/54), [#57](https://github.com/Svaroh/passly_browser_extension/pull/57)) | **E-A, E-B, E-B1, E-C, E-V, E-D, M3 (Incremental Delta Sync & E2E Suite), Console & Biometrics Hardening**: Containerized workspace, offline session unlock, local-first reads, Seamless Offline Routing, offline-first passkeys, biometric unlock & iframe enrollment, client-side delta sync engine (`SyncEngine`, `DeltaSyncStrategy`, `ChangesApplier`, `BootstrapStrategy`, `ManifestReconciler`, `SyncStateLocalStorage`) enforcing strict data absence refresh policy, verified by Chromium/Firefox/Safari E2E suites. |
+| **`passly_styleguide`** | v5.12.1 (fork) | **6.1.6** (branch `main`) | Fully adapted for autonomous execution, offline states, and biometric auth dialogs with table stretch & styling fixes. |
 
 > [!NOTE]
 > All pending milestones and unfulfilled requirements are tracked in the roadmap backlog in **[docs/TODO/roadmap-backlog.md](../TODO/roadmap-backlog.md)**.
@@ -109,6 +109,11 @@ All planned read-only and autonomous workspace objectives are fully implemented 
    - Background messaging ports (`passbolt.sync.sync-now`, `passbolt.sync.get-status`) via `SyncNowController`.
    - Dedicated Chromium CDP E2E test suite (`e2e/delta-sync.e2e.js`, `npm run test:e2e:all`) verifying protocol contracts, data absence policy, atomic dispatch, 410 Gone recovery, manifest reconciliation, and offline resilience.
    - Verified by 72 sync unit tests, 5,157 full extension unit tests, and 100% passing E2E suites. Packed/unpacked artifacts rebuilt.
+5. **Console Hardening & Iframe Biometric Enrollment (v6.1.21, PR [#57](https://github.com/Svaroh/passly_browser_extension/pull/57)):**
+   - Eliminated first-load console errors and non-critical warnings across Chromium and Firefox extensions.
+   - Enabled biometric enrollment within iframes by establishing explicit Permissions-Policy (`publickey-credentials-create`).
+   - Hardened multiplatform E2E test harness across Chromium, Firefox, and Safari targets.
+   - Bumps version to `6.1.21` with fresh distributable artifacts.
 
 ---
 
